@@ -7,34 +7,68 @@ public class PlayerMover : MonoBehaviour
     [Inject] CameraService cameraService;
     [SerializeField, SelfFill(true)] private CharacterController characterController;
 
-    [SerializeField] private float speed;
 
-    [SerializeField, ReadOnly] private float horizontalInput;
-    [SerializeField, ReadOnly] private float verticalInput;
+    [SerializeField, Tab("Values")] private float playerSpeed = 2.0f;
+    [SerializeField, Tab("Values")] private float jumpHeight = 1.0f;
+    [SerializeField, Tab("Values")] private float gravityValue = -9.81f;
 
-    void Start()
+    [SerializeField, Tab("Debug"), ReadOnly] private Vector3 playerVelocity;
+    [SerializeField, Tab("Debug"), ReadOnly] private float horizontalInput;
+    [SerializeField, Tab("Debug"), ReadOnly] private float verticalInput;
+
+    public bool GroundedPlayer;
+    //[SerializeField, Tab("Debug"), ReadOnly] private bool groundedPlayer;
+
+
+    private void Update()
     {
+        bool lastGround = GroundedPlayer;
 
+        bool raycast = Physics.Raycast(transform.position, Vector3.down, characterController.height / 2 - characterController.center.y + 0.01f);
+        GroundedPlayer = characterController.isGrounded || raycast;
+
+        if (lastGround != GroundedPlayer)
+        {
+            Debug.Log($"IsGround: {GroundedPlayer}, Raycast: {raycast}");
+        }
+
+        GetInput();
+
+        SimpleMove();
+
+        if (GroundedPlayer && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
+
+        Jump();
+
+        ApplyGravity();
     }
 
-    void Update()
+    private void SimpleMove()
     {
-        GetInput();
-        Move();
+        Vector3 moveVector = cameraService.MainCamera.transform.forward * verticalInput + cameraService.MainCamera.transform.right * horizontalInput;
+        moveVector.y = 0f;
+        moveVector *= playerSpeed * Time.deltaTime;
 
-        if (Input.GetButtonDown("Jump"))
+        characterController.Move(moveVector);
+    }
+
+    private void Jump()
+    {
+        if (Input.GetButtonDown("Jump") && GroundedPlayer)
         {
-            characterController.Move(Vector3.up);
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }
     }
 
-    private void Move()
+    private void ApplyGravity()
     {
-        Vector3 moveVector = cameraService.MainCamera.transform.forward * verticalInput + cameraService.MainCamera.transform.right * horizontalInput;
-        moveVector *= speed;
-
-        characterController.SimpleMove(moveVector);
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        characterController.Move(playerVelocity * Time.deltaTime);
     }
+
 
     private void GetInput()
     {

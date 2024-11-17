@@ -17,4 +17,14 @@ public class PortalService : MonoBehaviour
     {
         Portals.Update(cameraService.MainCamera.transform);
     }
+
+    public void SpawnFirstPortal(RaycastHit hit)
+    {
+        Portals.FirstPortalData.PlacePortal(hit);
+    }
+
+    public void SpawnSecondPortal(RaycastHit hit)
+    {
+        Portals.SecondPortalData.PlacePortal(hit);
+    }
 }

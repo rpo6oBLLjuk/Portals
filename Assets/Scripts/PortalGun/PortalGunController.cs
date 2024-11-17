@@ -4,39 +4,64 @@ using Zenject;
 
 public class PortalGunController : MonoBehaviour
 {
+    [Inject] PortalService portalService;
     [Inject] UIService uiService;
 
     [SerializeField, Tab("Raycast")] private LayerMask raycastMask;
     [SerializeField, Tab("Raycast")] private float raycastDistance;
 
 
-    [SerializeField, Tab("Debug"), ReadOnly] private Vector3? hitPoint = new(0, 0, 0);
+    [SerializeField, Tab("Debug"), ReadOnly] private RaycastHit raycastHit;
     [SerializeField, Tab("Debug")] private Color hitPointColor = Color.red;
     [SerializeField, Tab("Debug")] private float hitPointRadius = 0.1f;
 
 
     void Update()
     {
-        if (Physics.Raycast(transform.position, transform.forward * raycastDistance, out RaycastHit hit, raycastDistance, raycastMask))
+        if (CheckRaycast())
         {
-            uiService.CrosshairController.EnableCrosshair();
-            hitPoint = hit.point;
-        }
-        else
-        {
-            uiService.CrosshairController.DisableCrosshair();
-            hitPoint = null;
+            GetInput();
         }
     }
+
+    private bool CheckRaycast()
+    {
+        if (Physics.Raycast(transform.position, transform.forward, out raycastHit, raycastDistance))
+        {
+            // Проверяем, попадает ли объект в слой маски
+            if ((raycastMask & (1 << raycastHit.collider.gameObject.layer)) != 0)
+            {
+                uiService.CrosshairController.EnableCrosshair();
+                return true;
+            }
+        }
+
+        uiService.CrosshairController.DisableCrosshair();
+        return false;
+    }
+
+    private void GetInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            portalService.SpawnFirstPortal(raycastHit);
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            portalService.SpawnSecondPortal(raycastHit);
+        }
+    }
+
+
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawRay(transform.position, transform.forward * raycastDistance);
 
-        if (hitPoint != null)
+        if (raycastHit.point != null)
         {
             Gizmos.color = hitPointColor;
-            Gizmos.DrawWireSphere(hitPoint.Value, hitPointRadius);
+            Gizmos.DrawWireSphere(raycastHit.point, hitPointRadius);
         }
     }
 }

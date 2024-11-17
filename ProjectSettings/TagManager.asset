@@ -8,7 +8,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - MainCameraIngore
   - Water
   - UI
   - Portal_1

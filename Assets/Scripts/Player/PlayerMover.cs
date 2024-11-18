@@ -12,7 +12,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField, Tab("Values")] private float jumpHeight = 1.0f;
     [SerializeField, Tab("Values")] private float gravityValue = -9.81f;
 
-    [SerializeField, Tab("Debug"), ReadOnly] private Vector3 playerVelocity;
+    [SerializeField, Tab("Debug"), ReadOnly] public Vector3 playerVelocity;
     [SerializeField, Tab("Debug"), ReadOnly] private float horizontalInput;
     [SerializeField, Tab("Debug"), ReadOnly] private float verticalInput;
 

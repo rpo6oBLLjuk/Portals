@@ -6,6 +6,10 @@ public class CameraService : MonoBehaviour
 
     [SerializeField] private bool cursorVisibility = false;
 
+    public Quaternion Rotation
+    {
+        get => MainCamera.transform.rotation;
+    }
 
     public void Start()
     {

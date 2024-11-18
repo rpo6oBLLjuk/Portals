@@ -7,6 +7,7 @@ public class PortalGunController : MonoBehaviour
     [Inject] PortalService portalService;
     [Inject] UIService uiService;
 
+    [SerializeField, Tab("Raycast"), Layer] private int portalSurfaceMask;
     [SerializeField, Tab("Raycast")] private LayerMask raycastMask;
     [SerializeField, Tab("Raycast")] private float raycastDistance;
 
@@ -26,10 +27,10 @@ public class PortalGunController : MonoBehaviour
 
     private bool CheckRaycast()
     {
-        if (Physics.Raycast(transform.position, transform.forward, out raycastHit, raycastDistance))
+        if (Physics.Raycast(transform.position, transform.forward, out raycastHit, raycastDistance, raycastMask))
         {
             // Проверяем, попадает ли объект в слой маски
-            if ((raycastMask & (1 << raycastHit.collider.gameObject.layer)) != 0)
+            if (raycastHit.collider.gameObject.layer == portalSurfaceMask)
             {
                 uiService.CrosshairController.EnableCrosshair();
                 return true;

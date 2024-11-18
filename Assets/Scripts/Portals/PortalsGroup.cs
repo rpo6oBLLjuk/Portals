@@ -7,9 +7,8 @@ public class PortalsGroup
 {
     [field: SerializeField] public PortalData FirstPortalData { get; private set; }
     [field: SerializeField] public PortalData SecondPortalData { get; private set; }
-    [Button(nameof(ButtonMethod))]
-    public float additionalRotationDegrees = 90;
-    public Vector3 localRotation;
+
+    public Quaternion RotationBetweenPortals { get; private set; }
 
     public void Start()
     {
@@ -24,11 +23,8 @@ public class PortalsGroup
     {
         UpdatePortalCamera(FirstPortalData.PortalContainer, SecondPortalData.PortalContainer, FirstPortalData.Camera, playerCamera);
         UpdatePortalCamera(SecondPortalData.PortalContainer, FirstPortalData.PortalContainer, SecondPortalData.Camera, playerCamera);
-    }
 
-    private void ButtonMethod()
-    {
-        Update(Camera.main.transform);
+        CalculateRotationBetweenPortals();
     }
 
     private void UpdatePortalCamera(Transform fromPortal, Transform toPortal, Camera portalCamera, Transform playerCamera)
@@ -57,6 +53,11 @@ public class PortalsGroup
         // Устанавливаем nearClippingPlane
         float portalThickness = (newCameraPosition - toPortal.position).magnitude;
         portalCamera.nearClipPlane = portalThickness;
+    }
+
+    private void CalculateRotationBetweenPortals()
+    {
+        RotationBetweenPortals = Quaternion.Inverse(FirstPortalData.PortalContainer.rotation) * SecondPortalData.PortalContainer.rotation;
     }
 
     //private void UpdatePortalCamera(PortalData fromPortal, PortalData toPortal, Transform playerCamera)

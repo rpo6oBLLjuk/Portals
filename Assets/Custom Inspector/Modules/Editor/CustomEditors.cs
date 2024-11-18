@@ -14,6 +14,7 @@ namespace CustomInspector.Editor
     /// With DrawDefaultInspector() Unity uses its reliable drawing system.
     /// These class can be deleted or commented out, if you write your own editor for the MonoBehaviour class or all Scriptables
     /// </summary>
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(MonoBehaviour), editorForChildClasses: true, isFallback = true)]
     public class MonoBehaviourEditor : UnityEditor.Editor
     {
@@ -23,6 +24,8 @@ namespace CustomInspector.Editor
             DrawDefaultInspector();
         }
     }
+
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(ScriptableObject), editorForChildClasses: true, isFallback = true)]
     public class ScriptableObjectEditor : UnityEditor.Editor
     {

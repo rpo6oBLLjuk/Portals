@@ -1,10 +1,10 @@
 using CustomInspector;
 using UnityEngine;
-using Zenject;
 
 public class PlayerMover : MonoBehaviour
 {
-    [Inject] CameraService cameraService;
+    [SerializeField] private PlayerBodyRotator bodyRotator;
+
     [SerializeField, SelfFill(true)] private CharacterController characterController;
 
 
@@ -16,21 +16,12 @@ public class PlayerMover : MonoBehaviour
     [SerializeField, Tab("Debug"), ReadOnly] private float horizontalInput;
     [SerializeField, Tab("Debug"), ReadOnly] private float verticalInput;
 
-    public bool GroundedPlayer;
-    //[SerializeField, Tab("Debug"), ReadOnly] private bool groundedPlayer;
+    [field: SerializeField, Tab("Debug")] public bool GroundedPlayer { get; private set; }
 
 
     private void Update()
     {
-        bool lastGround = GroundedPlayer;
-
-        bool raycast = Physics.Raycast(transform.position, Vector3.down, characterController.height / 2 - characterController.center.y + 0.01f);
-        GroundedPlayer = characterController.isGrounded || raycast;
-
-        if (lastGround != GroundedPlayer)
-        {
-            Debug.Log($"IsGround: {GroundedPlayer}, Raycast: {raycast}");
-        }
+        CheckGround();
 
         GetInput();
 
@@ -46,9 +37,22 @@ public class PlayerMover : MonoBehaviour
         ApplyGravity();
     }
 
+    private void CheckGround()
+    {
+        bool lastGround = GroundedPlayer;
+
+        bool raycast = Physics.Raycast(transform.position, Vector3.down, characterController.height / 2 - characterController.center.y + 0.01f);
+        GroundedPlayer = characterController.isGrounded || raycast;
+
+        if (lastGround != GroundedPlayer)
+        {
+            Debug.Log($"IsGround: {GroundedPlayer}, Raycast: {raycast}");
+        }
+    }
+
     private void SimpleMove()
     {
-        Vector3 moveVector = cameraService.MainCamera.transform.forward * verticalInput + cameraService.MainCamera.transform.right * horizontalInput;
+        Vector3 moveVector = bodyRotator.transform.forward * verticalInput + bodyRotator.transform.right * horizontalInput;
         moveVector.y = 0f;
         moveVector *= playerSpeed * Time.deltaTime;
 

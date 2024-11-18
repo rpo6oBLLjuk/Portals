@@ -15,6 +15,8 @@ public class PortalTeleportController : MonoBehaviour
 
     [SerializeField, ReadOnly] private PortalData secondPortal;
 
+    [SerializeField] private bool isActive = true;
+
 
     private void Start()
     {
@@ -23,7 +25,10 @@ public class PortalTeleportController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"Trigger Enter, GO: {other.gameObject.name}");
+        if (!isActive)
+            return;
+
+        Debug.Log($"Trigger Enter, GO: {other.gameObject.name}", other.gameObject);
 
         if (other.gameObject.layer == playerLayer)
         {
@@ -44,11 +49,11 @@ public class PortalTeleportController : MonoBehaviour
 
     private void Teleport(GameObject player)
     {
-        player.transform.position = secondPortal.PortalContainer.position;
+        player.transform.position = Vector3.zero;
 
-        player.transform.forward += -portalService.Portals.SecondPortalData.PortalContainer.forward;
+        //player.transform.rotation = portalService.Portals.SecondPortalData.PortalContainer.rotation;
+        Debug.Break();
 
-
-        Debug.Log($"Teleport ended", this);
+        Debug.Log($"Teleport ended, Position: {secondPortal.PortalContainer.position}", this);
     }
 }

@@ -6,12 +6,12 @@ public class PlayerBodyRotator : MonoBehaviour
     [Inject] CameraService cameraService;
 
     [SerializeField] private Transform body;
-    [field: SerializeField] public Quaternion rotation { get; private set; }
+    public Quaternion rotation { get; private set; }
 
     private void Update()
     {
         Quaternion cameraRotation = cameraService.MainCamera.transform.rotation;
-        cameraRotation .x = 0;
+        cameraRotation.x = 0;
         cameraRotation.z = 0;
 
         rotation = cameraRotation;

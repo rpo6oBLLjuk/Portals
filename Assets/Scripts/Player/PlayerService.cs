@@ -5,9 +5,11 @@ public class PlayerService : MonoBehaviour
     [SerializeField] private PlayerMover playerMover;
     [SerializeField] private PlayerBodyRotator bodyRotator;
 
-    public Vector3 Velocity
+    [field: SerializeField] public GameObject Player { get; private set; }
+
+    public float Velocity
     {
-        get => playerMover.playerVelocity;
+        get => playerMover.playerGravity;
     }
 
     public Quaternion BodyRotation
@@ -15,4 +17,9 @@ public class PlayerService : MonoBehaviour
         get => bodyRotator.rotation;
     }
 
+
+    public void BreakPlayerMoverUpdate()
+    {
+        playerMover.BreakUpdate();
+    }
 }

@@ -8,89 +8,112 @@ public class PortalsGroup
     [field: SerializeField] public PortalData FirstPortalData { get; private set; }
     [field: SerializeField] public PortalData SecondPortalData { get; private set; }
 
-    public Quaternion RotationBetweenPortals { get; private set; }
+    [field: SerializeField, FixedValues(0, 16, 24, 32)] private int RenderBufferDepth;
 
-    public void Start()
+    public void Start(CameraService cameraService)
     {
         if (FirstPortalData == null)
+        {
             Debug.LogError("First Portal is empty");
+            return;
+        }
 
         if (SecondPortalData == null)
+        {
             Debug.LogError("Second Portal is empty");
+            return;
+        }
+
+        RenderTexture renderTexture1 = new(cameraService.MainCamera.pixelWidth, cameraService.MainCamera.pixelHeight, RenderBufferDepth);
+        RenderTexture renderTexture2 = new(cameraService.MainCamera.pixelWidth, cameraService.MainCamera.pixelHeight, RenderBufferDepth);
+
+        FirstPortalData.Start(renderTexture1, cameraService.MainCamera);
+        SecondPortalData.Start(renderTexture2, cameraService.MainCamera);
+
+        FirstPortalData.Camera.targetTexture = renderTexture2;
+        SecondPortalData.Camera.targetTexture = renderTexture1;
     }
 
     public void Update(Transform playerCamera)
     {
-        UpdatePortalCamera(FirstPortalData.PortalContainer, SecondPortalData.PortalContainer, FirstPortalData.Camera, playerCamera);
-        UpdatePortalCamera(SecondPortalData.PortalContainer, FirstPortalData.PortalContainer, SecondPortalData.Camera, playerCamera);
-
-        CalculateRotationBetweenPortals();
+        UpdatePortalCamera(FirstPortalData.Container, SecondPortalData.Container, SecondPortalData.Camera, playerCamera);
+        UpdatePortalCamera(SecondPortalData.Container, FirstPortalData.Container, FirstPortalData.Camera, playerCamera);
     }
 
     private void UpdatePortalCamera(Transform fromPortal, Transform toPortal, Camera portalCamera, Transform playerCamera)
     {
-        // Рассчитываем позицию камеры "от" портала
-        Vector3 relativePosition = fromPortal.InverseTransformPoint(playerCamera.position);
-        relativePosition = -relativePosition;
-        relativePosition.y = -relativePosition.y;
+        //считаем позицию и поворот
+        Vector3 loockerPosition = fromPortal.worldToLocalMatrix.MultiplyPoint3x4(playerCamera.position);
+        loockerPosition.x *= -1;
+        loockerPosition.z *= -1;
 
-        Vector3 newCameraPosition = toPortal.TransformPoint(relativePosition);
-        portalCamera.transform.position = newCameraPosition;
+        Quaternion diffrence = toPortal.rotation * Quaternion.Inverse(fromPortal.rotation * Quaternion.Euler(0, 180, 0));
 
-        // Рассчитываем направление камеры, "смотря вперёд" от портала
-        Vector3 relativeDirection = fromPortal.InverseTransformDirection(playerCamera.forward);
-        relativeDirection.y = -relativeDirection.y;
-        Vector3 newCameraDirection = toPortal.TransformDirection(relativeDirection);
+        portalCamera.transform.rotation = diffrence * playerCamera.rotation;
+        portalCamera.transform.localPosition = loockerPosition;
 
-        // Рассчитываем "вверх" камеры
-        Vector3 relativeUp = fromPortal.InverseTransformDirection(playerCamera.up);
-        Vector3 newCameraUp = toPortal.TransformDirection(relativeUp);
+        Plane p = new Plane(-toPortal.forward, toPortal.position);
+        Vector4 clipPlane = new Vector4(p.normal.x, p.normal.y, p.normal.z, p.distance);
+        Vector4 clipPlaneCameraSpace =
+            Matrix4x4.Transpose(Matrix4x4.Inverse(portalCamera.worldToCameraMatrix)) * clipPlane;
 
-        // Устанавливаем ориентацию камеры, добавляя поворот на 180 градусов
-        Quaternion portalRotation = Quaternion.LookRotation(newCameraDirection, newCameraUp);
-        portalCamera.transform.rotation = portalRotation * Quaternion.Euler(0, 180, 0);
+        var newMatrix = playerCamera.GetComponent<Camera>().CalculateObliqueMatrix(clipPlaneCameraSpace);
+        portalCamera.projectionMatrix = newMatrix;
 
-        // Устанавливаем nearClippingPlane
-        float portalThickness = (newCameraPosition - toPortal.position).magnitude;
-        portalCamera.nearClipPlane = portalThickness;
+        float portalThickness = (portalCamera.transform.localPosition).magnitude;
+        portalCamera.nearClipPlane = portalThickness * 2;
     }
 
-    private void CalculateRotationBetweenPortals()
+    public Quaternion GetPortalRotationDifference(Transform fromPortal, PortalData toPortal)
     {
-        RotationBetweenPortals = Quaternion.Inverse(FirstPortalData.PortalContainer.rotation) * SecondPortalData.PortalContainer.rotation;
+        //// Разница поворотов между порталами
+        //Quaternion rotationDifference = Quaternion.Inverse(toPortal.Container.rotation) * fromPortal.rotation;
+
+        //// Добавляем вращение на 180 градусов вокруг оси Y (или другой оси, если нужно)
+        //Quaternion flipRotation = Quaternion.Euler(0, 180, 0);
+        //Quaternion adjustedRotationDifference = rotationDifference * flipRotation;
+
+        //Debug.Log($"Half Turn: {adjustedRotationDifference}");
+
+        //return adjustedRotationDifference;
+
+        Vector3 directionPortal1 = fromPortal.forward;
+        Vector3 directionPortal2 = toPortal.Container.forward;
+
+        Vector3 axis = Vector3.Cross(directionPortal1, directionPortal2);
+        float angle = Vector3.Angle(directionPortal1, directionPortal2);
+
+        Quaternion rotation = Quaternion.AngleAxis(angle, axis) * Quaternion.Euler(0, 180, 0) * (fromPortal.rotation * Quaternion.Inverse(toPortal.Container.rotation));
+
+        return rotation;
     }
 
-    //private void UpdatePortalCamera(PortalData fromPortal, PortalData toPortal, Transform playerCamera)
+
+    //private void UpdatePortalCamera(Transform fromPortal, Transform toPortal, Camera portalCamera, Transform playerCamera)
     //{
-    //    //// Вычисляем позицию камеры с учётом вращения портала
-    //    //Vector3 localOffset = fromPortal.PortalContainer.InverseTransformPoint(playerCamera.position);
-    //    //Vector3 targetPosition = toPortal.PortalContainer.TransformPoint(-localOffset);
+    //    // Рассчитываем позицию камеры "от" портала
+    //    Vector3 relativePosition = fromPortal.InverseTransformPoint(playerCamera.position);
+    //    relativePosition = -relativePosition;
+    //    relativePosition.y = -relativePosition.y;
 
-    //    //toPortal.Camera.transform.position = targetPosition;
+    //    Vector3 newCameraPosition = toPortal.TransformPoint(relativePosition);
+    //    portalCamera.transform.position = newCameraPosition;
 
-    //    //Vector3 offset = playerCamera.position - fromPortal.PortalContainer.position;
-    //    //toPortal.Camera.transform.position = toPortal.PortalContainer.position + offset;
-    //    //toPortal.Camera.transform.position = new Vector3(toPortal.Camera.transform.position.x, playerCamera.transform.position.y, toPortal.Camera.transform.position.z);
+    //    // Рассчитываем направление камеры, "смотря вперёд" от портала
+    //    Vector3 relativeDirection = fromPortal.InverseTransformDirection(playerCamera.forward);
+    //    relativeDirection.y = -relativeDirection.y;
+    //    Vector3 newCameraDirection = toPortal.TransformDirection(relativeDirection);
 
-    //    Vector3 relativePosition = fromPortal.PortalContainer.InverseTransformPoint(Camera.main.transform.position);
-    //    Vector3 newCameraPosition = toPortal.PortalContainer.TransformPoint(relativePosition);
-    //    fromPortal.Camera.transform.position = newCameraPosition;
+    //    // Рассчитываем "вверх" камеры
+    //    Vector3 relativeUp = fromPortal.InverseTransformDirection(playerCamera.up);
+    //    Vector3 newCameraUp = toPortal.TransformDirection(relativeUp);
 
-    //    //// Инвертируем поворот портала
-    //    //Quaternion portalRotation = Quaternion.Inverse(toPortal.PortalContainer.rotation);
+    //    // Устанавливаем ориентацию камеры, добавляя поворот на 180 градусов
+    //    Quaternion portalRotation = Quaternion.LookRotation(newCameraDirection, newCameraUp);
+    //    portalCamera.transform.rotation = portalRotation * Quaternion.Euler(0, 180, 0);
 
-    //    //// Камера должна смотреть в противоположную сторону от портала, инвертируем направление взгляда
-    //    //Quaternion cameraRotation = Quaternion.LookRotation(-toPortal.PortalContainer.forward, toPortal.PortalContainer.up);
-
-    //    //// Применяем дополнительное вращение
-    //    //Quaternion additionalRotation = Quaternion.AngleAxis(additionalRotationDegrees, toPortal.PortalContainer.forward);
-
-    //    // Устанавливаем окончательное вращение камеры
-    //    toPortal.Camera.transform.localRotation = Quaternion.Euler(localRotation);
-
-    //    // Настройка nearClipPlane
-    //    float clipDistance = Vector3.Distance(toPortal.PortalContainer.position, playerCamera.position);
-    //    toPortal.Camera.nearClipPlane = clipDistance;
+    //    // Устанавливаем nearClippingPlane
+    //    float portalThickness = (newCameraPosition - toPortal.position).magnitude;
+    //    portalCamera.nearClipPlane = portalThickness;
     //}
-
 }

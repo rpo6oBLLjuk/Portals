@@ -10,7 +10,7 @@ public class PortalService : MonoBehaviour
 
     private void Start()
     {
-        Portals.Start();
+        Portals.Start(cameraService);
     }
 
     private void Update()

@@ -4,22 +4,23 @@ using UnityEngine;
 public class PlayerMover : MonoBehaviour
 {
     [SerializeField] private PlayerBodyRotator bodyRotator;
-
-    [SerializeField, SelfFill(true)] private CharacterController characterController;
-
+    [SerializeField, SelfFill(true)] public CharacterController characterController;
 
     [SerializeField, Tab("Values")] private float playerSpeed = 2.0f;
     [SerializeField, Tab("Values")] private float jumpHeight = 1.0f;
     [SerializeField, Tab("Values")] private float gravityValue = -9.81f;
 
-    [SerializeField, Tab("Debug"), ReadOnly] public Vector3 playerVelocity;
     [SerializeField, Tab("Debug"), ReadOnly] private float horizontalInput;
     [SerializeField, Tab("Debug"), ReadOnly] private float verticalInput;
 
-    [field: SerializeField, Tab("Debug")] public bool GroundedPlayer { get; private set; }
+    [field: SerializeField, Tab("Debug"), ReadOnly] public float playerGravity { get; private set; }
+    [field: SerializeField, Tab("Debug"), ReadOnly] public bool GroundedPlayer { get; private set; }
+    [SerializeField, Tab("Debug")] private bool groundedLogs = false;
+
+    [SerializeField, Tab("Debug")] private bool updateBreaked = false;
 
 
-    private void Update()
+    public void Update()
     {
         CheckGround();
 
@@ -27,9 +28,9 @@ public class PlayerMover : MonoBehaviour
 
         SimpleMove();
 
-        if (GroundedPlayer && playerVelocity.y < 0)
+        if (GroundedPlayer && playerGravity < 0)
         {
-            playerVelocity.y = 0f;
+            playerGravity = 0f;
         }
 
         Jump();
@@ -46,7 +47,8 @@ public class PlayerMover : MonoBehaviour
 
         if (lastGround != GroundedPlayer)
         {
-            Debug.Log($"IsGround: {GroundedPlayer}, Raycast: {raycast}");
+            if (groundedLogs)
+                Debug.Log($"IsGround: {GroundedPlayer}, Raycast: {raycast}");
         }
     }
 
@@ -63,14 +65,14 @@ public class PlayerMover : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && GroundedPlayer)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+            playerGravity += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
         }
     }
 
     private void ApplyGravity()
     {
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        characterController.Move(playerVelocity * Time.deltaTime);
+        playerGravity += gravityValue * Time.deltaTime;
+        characterController.Move(playerGravity * Time.deltaTime * Vector3.up);
     }
 
 
@@ -78,5 +80,11 @@ public class PlayerMover : MonoBehaviour
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
+    }
+
+    public void BreakUpdate()
+    {
+        updateBreaked = true;
+        Debug.Log("Update breaked");
     }
 }

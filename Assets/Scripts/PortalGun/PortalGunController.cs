@@ -29,7 +29,6 @@ public class PortalGunController : MonoBehaviour
     {
         if (Physics.Raycast(transform.position, transform.forward, out raycastHit, raycastDistance, raycastMask))
         {
-            // Проверяем, попадает ли объект в слой маски
             if (raycastHit.collider.gameObject.layer == portalSurfaceMask)
             {
                 uiService.CrosshairController.EnableCrosshair();

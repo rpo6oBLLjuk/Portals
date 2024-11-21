@@ -5,12 +5,23 @@ using UnityEngine;
 [Serializable]
 public class PortalData
 {
-    [field: SerializeField, Hook(nameof(FindPortalComponents))] public Transform PortalContainer { get; private set; }
-    [field: SerializeField] public Transform PortalMesh { get; private set; }
+    [field: SerializeField, Hook(nameof(FindPortalComponents))] public Transform Container { get; private set; }
+    [field: SerializeField] public Transform RenderMesh { get; private set; }
     [field: SerializeField] public Camera Camera { get; private set; }
+    [field: SerializeField] public PortalWarpController WarpController { get; private set; }
+
+    [field: SerializeField, ReadOnly] public RenderTexture RenderTexture {  get; private set; }
 
     [field: SerializeField] private float spawnOffset = 0.0001f;
 
+
+    public void Start(RenderTexture renderTexture, Camera mainCamera)
+    {
+        this.RenderTexture =  renderTexture;
+
+        Camera.CopyFrom(Camera);
+        RenderMesh.GetComponent<MeshRenderer>().material.mainTexture = renderTexture;
+    }
 
     public void PlacePortal(RaycastHit hit)
     {
@@ -47,23 +58,23 @@ public class PortalData
         Quaternion portalRotation = Quaternion.LookRotation(-normal, up);
 
         // Задаём позицию и поворот портала
-        PortalContainer.position = hit.point + normal * spawnOffset;
-        PortalContainer.rotation = portalRotation;
+        Container.position = hit.point + normal * spawnOffset;
+        Container.rotation = portalRotation;
     }
 
 
     private void FindPortalComponents()
     {
-        Camera camera = PortalContainer.GetComponentInChildren<Camera>();
+        Camera camera = Container.GetComponentInChildren<Camera>();
         if (camera == null)
             Debug.LogWarning("Не удалось найти камеру портала. Убедитесь, что она является дочерним объектом контейнера портала, или добавьте её вручную");
         else
             Camera = camera;
 
-        MeshRenderer mesh = PortalContainer.GetComponentInChildren<MeshRenderer>();
+        MeshRenderer mesh = Container.GetComponentInChildren<MeshRenderer>();
         if (mesh == null)
             Debug.LogWarning("Не удалось найти меш портала. Убедитесь, что он является дочерним объектом контейнера портала, или добавьте его вручную");
         else
-            PortalMesh = mesh.transform;
+            RenderMesh = mesh.transform;
     }
 }

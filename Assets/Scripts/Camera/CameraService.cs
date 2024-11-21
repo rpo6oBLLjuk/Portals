@@ -1,8 +1,10 @@
+using Cinemachine;
 using UnityEngine;
 
 public class CameraService : MonoBehaviour
 {
     [field: SerializeField] public Camera MainCamera { get; private set; }
+    [field: SerializeField] public CinemachineVirtualCamera CameraTransform { get; private set; }
 
     [SerializeField] private bool cursorVisibility = false;
 
@@ -15,5 +17,8 @@ public class CameraService : MonoBehaviour
     {
         Cursor.visible = cursorVisibility;
         Cursor.lockState = CursorLockMode.Locked;
+
+        QualitySettings.vSyncCount = 0;
     }
+
 }

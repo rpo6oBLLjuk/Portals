@@ -17,8 +17,6 @@ public class PlayerMover : MonoBehaviour
     [field: SerializeField, Tab("Debug"), ReadOnly] public bool GroundedPlayer { get; private set; }
     [SerializeField, Tab("Debug")] private bool groundedLogs = false;
 
-    [SerializeField, Tab("Debug")] private bool updateBreaked = false;
-
 
     public void Update()
     {
@@ -80,11 +78,5 @@ public class PlayerMover : MonoBehaviour
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
-    }
-
-    public void BreakUpdate()
-    {
-        updateBreaked = true;
-        Debug.Log("Update breaked");
     }
 }

@@ -32,6 +32,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-632745236-0
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1141367320-0
         - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1911887584-0
+        - globalObjectIdString: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-2027849202-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -59,6 +60,8 @@ MonoBehaviour:
           iconNameOrGuid: StandaloneInputModule Icon
         - colorIndex: 0
           iconNameOrGuid: PreMatCube
+        - colorIndex: 0
+          iconNameOrGuid: AudioSource Icon
     - goDatas_byGlobalId:
         keys: []
         values: []

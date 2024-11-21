@@ -4,9 +4,9 @@ using Zenject;
 
 public class PortalWarpController : MonoBehaviour
 {
+    //Исправить срач из полей
     [Inject] PortalService portalService;
-    [Inject] PlayerService playerService;
-    [Inject] CameraService cameraService;
+    [Inject] AudioService audioService;
 
     [SerializeField] private bool isFirst = true;
     [SerializeField, Layer] private int warpedObjectsLayer;
@@ -14,9 +14,12 @@ public class PortalWarpController : MonoBehaviour
     [SerializeField] private bool isActive = true;
     [SerializeField] private bool breakBeforeWarp = false;
 
+    [SerializeField] private bool ignoreCollisionLog = false;
+
     [SerializeField, ReadOnly] private PortalData secondPortal;
 
     private ListContainer<Collider> colliders = new ListContainer<Collider>();
+
 
 
     private void Start()
@@ -63,6 +66,8 @@ public class PortalWarpController : MonoBehaviour
 
     private void Warp(Collider warpedObj)
     {
+        audioService.Warp();
+
         IngoneCollision(warpedObj, true);
         secondPortal.WarpController.IngoneCollision(warpedObj, true);
 
@@ -73,19 +78,19 @@ public class PortalWarpController : MonoBehaviour
 
         Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
         relativePos = halfTurn * relativePos;
-        warpedObj.transform.position = outTransform.TransformPoint(relativePos);
+        relativePos = outTransform.TransformPoint(relativePos);
+        warpedObj.transform.position = relativePos;
 
         Quaternion relativeRot = warpedObj.transform.rotation;
         relativeRot = halfTurn * relativeRot;
-        warpedObj.transform.rotation = outTransform.rotation * relativeRot;
+        Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
+        warpedObj.transform.rotation = endRotation;
 
         //Vector3 relativeVel = inTransform.InverseTransformDirection(playerService.Velocity);
         //relativeVel = halfTurn * relativeVel;
         //playerService.Velocity = outTransform.TransformDirection(relativeVel);
 
-        playerService.BreakPlayerMoverUpdate();
-
-        Debug.Log($"Position: {outTransform.TransformPoint(relativePos)}, Rotation: {outTransform.rotation * relativeRot}, HalfTurn: {halfTurn}");
+        Debug.Log($"Relative Rotation: {relativeRot}, EndRotation: {endRotation}, HalfTurn: {halfTurn}");
 
         if (breakBeforeWarp)
             Debug.Break();
@@ -103,6 +108,7 @@ public class PortalWarpController : MonoBehaviour
             debugString += $"{otherColliders.name}, ";
         }
 
-        Debug.Log(debugString, this);
+        if (ignoreCollisionLog)
+            Debug.Log(debugString, this);
     }
 }

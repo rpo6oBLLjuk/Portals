@@ -16,10 +16,4 @@ public class PlayerService : MonoBehaviour
     {
         get => bodyRotator.rotation;
     }
-
-
-    public void BreakPlayerMoverUpdate()
-    {
-        playerMover.BreakUpdate();
-    }
 }

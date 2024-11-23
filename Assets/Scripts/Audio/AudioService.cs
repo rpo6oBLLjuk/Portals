@@ -6,7 +6,7 @@ public class AudioService : MonoBehaviour
     [SerializeField] private Transform sourcesContainer;
 
     [SerializeField] private AudioClip warpSound;
-    [SerializeField] private float warpSoundStartTime;
+    [SerializeField, Range(0, 1)] private float warpSoundStartTime;
 
     public void Warp()
     {
@@ -15,7 +15,7 @@ public class AudioService : MonoBehaviour
 
     private AudioSource GetAudioSourceInstance()
     {
-        Transform container = (sourcesContainer != null) ? sourcesContainer : null;
+        Transform container = (sourcesContainer != null) ? sourcesContainer : transform;
         return Instantiate(audioSource, container);
     }
 
@@ -25,6 +25,8 @@ public class AudioService : MonoBehaviour
         source.time = clip.length * startTime;
         source.Play();
 
-        Destroy(source, source.time);
+        Debug.Log($"Time: {source.time}", source);
+
+        Destroy(source.gameObject, clip.length - source.time * clip.length);
     }
 }

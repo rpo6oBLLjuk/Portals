@@ -1,17 +1,12 @@
-using Cinemachine;
 using UnityEngine;
 
 public class CameraService : MonoBehaviour
 {
     [field: SerializeField] public Camera MainCamera { get; private set; }
-    [field: SerializeField] public CinemachineVirtualCamera CameraTransform { get; private set; }
+    [field: SerializeField] public Transform CameraTransform { get; private set; }
 
     [SerializeField] private bool cursorVisibility = false;
 
-    public Quaternion Rotation
-    {
-        get => MainCamera.transform.rotation;
-    }
 
     public void Start()
     {
@@ -21,4 +16,8 @@ public class CameraService : MonoBehaviour
         QualitySettings.vSyncCount = 0;
     }
 
+    public void SetCameraLocalPosition(Vector3 localPosition)
+    {
+        CameraTransform.localPosition = localPosition;
+    }
 }

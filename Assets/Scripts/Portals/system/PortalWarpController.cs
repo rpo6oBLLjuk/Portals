@@ -4,9 +4,9 @@ using Zenject;
 
 public class PortalWarpController : MonoBehaviour
 {
-    //Исправить срач из полей
-    [Inject] PortalService portalService;
-    [Inject] AudioService audioService;
+    [Inject] readonly CameraService cameraService;
+    [Inject] readonly PortalService portalService;
+    [Inject] readonly AudioService audioService;
 
     [SerializeField] private bool isFirst = true;
     [SerializeField, Layer] private int warpedObjectsLayer;
@@ -14,20 +14,17 @@ public class PortalWarpController : MonoBehaviour
     [SerializeField] private bool isActive = true;
     [SerializeField] private bool breakBeforeWarp = false;
 
-    [SerializeField] private bool ignoreCollisionLog = false;
+    [SerializeField] private bool collisionLog = false;
 
     [SerializeField, ReadOnly] private PortalData secondPortal;
 
     private ListContainer<Collider> colliders = new ListContainer<Collider>();
 
 
-
     private void Start()
     {
         secondPortal = (isFirst) ? portalService.Portals.SecondPortalData : portalService.Portals.FirstPortalData;
     }
-
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -86,9 +83,10 @@ public class PortalWarpController : MonoBehaviour
         Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
         warpedObj.transform.rotation = endRotation;
 
-        //Vector3 relativeVel = inTransform.InverseTransformDirection(playerService.Velocity);
-        //relativeVel = halfTurn * relativeVel;
-        //playerService.Velocity = outTransform.TransformDirection(relativeVel);
+        if(warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
+        {
+            playerRotationFix.FixRotation();
+        }
 
         Debug.Log($"Relative Rotation: {relativeRot}, EndRotation: {endRotation}, HalfTurn: {halfTurn}");
 
@@ -108,7 +106,7 @@ public class PortalWarpController : MonoBehaviour
             debugString += $"{otherColliders.name}, ";
         }
 
-        if (ignoreCollisionLog)
+        if (collisionLog)
             Debug.Log(debugString, this);
     }
 }

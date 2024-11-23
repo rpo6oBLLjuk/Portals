@@ -14,6 +14,6 @@ public class PlayerService : MonoBehaviour
 
     public Quaternion BodyRotation
     {
-        get => bodyRotator.rotation;
+        get => bodyRotator.Rotation;
     }
 }

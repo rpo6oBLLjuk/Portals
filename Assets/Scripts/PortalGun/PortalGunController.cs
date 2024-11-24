@@ -52,8 +52,6 @@ public class PortalGunController : MonoBehaviour
         }
     }
 
-
-
     private void OnDrawGizmos()
     {
         Gizmos.DrawRay(transform.position, transform.forward * raycastDistance);

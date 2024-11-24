@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class PlayerService : MonoBehaviour
 {
-    [SerializeField] private PlayerMover playerMover;
+    [SerializeField] private EntityPhysicsController playerPhysicsController;
     [SerializeField] private PlayerBodyRotator bodyRotator;
 
     [field: SerializeField] public GameObject Player { get; private set; }
 
-    public float Velocity
+    public Vector3 Velocity
     {
-        get => playerMover.playerGravity;
+        get => playerPhysicsController.Velocity;
     }
 
     public Quaternion BodyRotation

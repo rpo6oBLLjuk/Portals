@@ -11,7 +11,6 @@ public class PortalWarpController : MonoBehaviour
     [SerializeField] private bool isFirst = true;
     [SerializeField, Layer] private int warpedObjectsLayer;
 
-    [SerializeField] private bool isActive = true;
     [SerializeField] private bool breakBeforeWarp = false;
 
     [SerializeField] private bool collisionLog = false;
@@ -30,19 +29,22 @@ public class PortalWarpController : MonoBehaviour
     {
         colliders.Add(other);
 
-        if (!isActive)
-            return;
+        Debug.Log($"Trigger Enter, GO: {other.gameObject.name}", other.gameObject);
 
         if (other.gameObject.layer == warpedObjectsLayer)
         {
+            IngoneCollision(other, true);
+
             colliders.Remove(other);
+        }
+    }
 
-            Debug.Log($"Trigger Enter, GO: {other.gameObject.name}", other.gameObject);
-
-            if (true)
-            {
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.layer == warpedObjectsLayer)
+        {
+            if (CheckPlayerPosition(other))
                 Warp(other);
-            }
         }
     }
 
@@ -56,17 +58,25 @@ public class PortalWarpController : MonoBehaviour
         }
     }
 
-    public bool CheckPlayerDirection()
+    public bool CheckPlayerPosition(Collider other)
     {
-        return false;
+        Vector3 localPosition = transform.InverseTransformPoint(other.gameObject.transform.position);
+        if (localPosition.z > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     private void Warp(Collider warpedObj)
     {
-        audioService.Warp();
-
-        IngoneCollision(warpedObj, true);
         secondPortal.WarpController.IngoneCollision(warpedObj, true);
+
+        audioService.Warp();
 
         Quaternion halfTurn = portalService.Portals.GetPortalRotationDifference(transform, secondPortal);
 
@@ -75,6 +85,7 @@ public class PortalWarpController : MonoBehaviour
 
         Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
         relativePos = halfTurn * relativePos;
+        //relativePos.z *= -1;
         relativePos = outTransform.TransformPoint(relativePos);
         warpedObj.transform.position = relativePos;
 
@@ -83,12 +94,12 @@ public class PortalWarpController : MonoBehaviour
         Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
         warpedObj.transform.rotation = endRotation;
 
-        if(warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
+        if (warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
         {
             playerRotationFix.FixRotation();
         }
 
-        Debug.Log($"Relative Rotation: {relativeRot}, EndRotation: {endRotation}, HalfTurn: {halfTurn}");
+        Debug.Log($"EndPosition: {relativePos}, EndRotation: {endRotation}");
 
         if (breakBeforeWarp)
             Debug.Break();

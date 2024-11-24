@@ -94,6 +94,13 @@ public class PortalWarpController : MonoBehaviour
         Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
         warpedObj.transform.rotation = endRotation;
 
+        if(warpedObj.TryGetComponent(out Rigidbody rb))
+        {
+            Vector3 relativeVel = inTransform.InverseTransformDirection(rb.velocity);
+            relativeVel = halfTurn * relativeVel;
+            rb.velocity = outTransform.TransformDirection(relativeVel);
+        }
+
         if (warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
         {
             playerRotationFix.FixRotation();

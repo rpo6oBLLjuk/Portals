@@ -25,8 +25,6 @@ public class AudioService : MonoBehaviour
         source.time = clip.length * startTime;
         source.Play();
 
-        Debug.Log($"Time: {source.time}", source);
-
         Destroy(source.gameObject, clip.length - source.time * clip.length);
     }
 }

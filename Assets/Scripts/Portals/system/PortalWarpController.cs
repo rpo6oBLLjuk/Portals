@@ -99,12 +99,17 @@ public class PortalWarpController : MonoBehaviour
             Vector3 relativeVel = inTransform.InverseTransformDirection(rb.velocity);
             relativeVel = halfTurn * relativeVel;
             rb.velocity = outTransform.TransformDirection(relativeVel);
+
+            Debug.DrawRay(relativePos, relativeVel);
+            Debug.Break();
         }
 
         if (warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
         {
             playerRotationFix.FixRotation();
         }
+
+
 
         Debug.Log($"EndPosition: {relativePos}, EndRotation: {endRotation}");
 

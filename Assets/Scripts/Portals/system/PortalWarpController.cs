@@ -7,6 +7,7 @@ public class PortalWarpController : MonoBehaviour
     [Inject] readonly CameraService cameraService;
     [Inject] readonly PortalService portalService;
     [Inject] readonly AudioService audioService;
+    [Inject] readonly UIService uiService;
 
     [SerializeField] private bool isFirst = true;
     [SerializeField, Layer] private int warpedObjectsLayer;
@@ -94,22 +95,31 @@ public class PortalWarpController : MonoBehaviour
         Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
         warpedObj.transform.rotation = endRotation;
 
-        if(warpedObj.TryGetComponent(out Rigidbody rb))
+        Vector3 relativeVel = Vector3.zero;
+
+        if (warpedObj.TryGetComponent(out Rigidbody rb))
         {
-            Vector3 relativeVel = inTransform.InverseTransformDirection(rb.velocity);
+            relativeVel = inTransform.InverseTransformDirection(rb.velocity);
             relativeVel = halfTurn * relativeVel;
             rb.velocity = outTransform.TransformDirection(relativeVel);
 
-            Debug.DrawRay(relativePos, relativeVel);
-            Debug.Break();
+            Debug.DrawRay(relativePos, relativeVel.normalized * 10);
+            uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=red>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
+
+        }
+        else if (warpedObj.TryGetComponent(out EntityPhysicsController entityPhysicsController))
+        {
+            relativeVel = inTransform.InverseTransformDirection(entityPhysicsController.Velocity);
+            relativeVel = halfTurn * relativeVel;
+            //entityPhysicsController.AddForce(outTransform.TransformDirection(relativeVel));
+
+            uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=green>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
         }
 
         if (warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
         {
             playerRotationFix.FixRotation();
         }
-
-
 
         Debug.Log($"EndPosition: {relativePos}, EndRotation: {endRotation}");
 

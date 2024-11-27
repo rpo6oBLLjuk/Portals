@@ -10,8 +10,7 @@ public class CameraService : MonoBehaviour
 
     public void Start()
     {
-        Cursor.visible = cursorVisibility;
-        Cursor.lockState = CursorLockMode.Locked;
+        SetCursorState(cursorVisibility);
 
         QualitySettings.vSyncCount = 0;
     }
@@ -19,5 +18,23 @@ public class CameraService : MonoBehaviour
     public void SetCameraLocalPosition(Vector3 localPosition)
     {
         CameraTransform.localPosition = localPosition;
+    }
+
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            SetCursorState(!cursorVisibility);
+        }
+        if(Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            SetCursorState(cursorVisibility);
+        }
+    }
+
+    private void SetCursorState(bool cursorVisibility)
+    {
+        Cursor.visible = cursorVisibility;
+        Cursor.lockState = cursorVisibility ? CursorLockMode.None : CursorLockMode.Locked;
     }
 }

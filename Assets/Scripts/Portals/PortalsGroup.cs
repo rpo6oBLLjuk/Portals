@@ -72,8 +72,8 @@ public class PortalsGroup
         float angle = Vector3.Angle(directionPortal1, directionPortal2);
 
         Quaternion rotation = Quaternion.AngleAxis(angle, axis) * Quaternion.Euler(0, 180, 0) * (fromPortal.rotation * Quaternion.Inverse(toPortal.Container.rotation));
-
         return rotation;
     }
+
 
 }

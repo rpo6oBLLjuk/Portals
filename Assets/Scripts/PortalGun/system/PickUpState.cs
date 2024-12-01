@@ -95,7 +95,7 @@ public class PickUpState : PortalGunState
         }
         if(pickedUpObj.TryGetComponent(out Collider collider))
         {
-            collider.enabled = isActive;
+            //collider.enabled = isActive;
         }
     }
 }

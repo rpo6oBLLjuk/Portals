@@ -86,7 +86,6 @@ public class PortalWarpController : MonoBehaviour
 
         Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
         relativePos = halfTurn * relativePos;
-        //relativePos.z *= -1;
         relativePos = outTransform.TransformPoint(relativePos);
         warpedObj.transform.position = relativePos;
 
@@ -107,7 +106,7 @@ public class PortalWarpController : MonoBehaviour
             uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=red>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
 
         }
-        else if (warpedObj.TryGetComponent(out EntityPhysicsController entityPhysicsController))
+        else if (warpedObj.TryGetComponent(out PlayerPhysicsController entityPhysicsController))
         {
             relativeVel = inTransform.InverseTransformDirection(entityPhysicsController.Velocity);
             relativeVel = halfTurn * relativeVel;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerService : MonoBehaviour
 {
-    [SerializeField] private EntityPhysicsController playerPhysicsController;
+    [SerializeField] private PlayerPhysicsController playerPhysicsController;
     [SerializeField] private PlayerBodyRotator bodyRotator;
 
     [field: SerializeField] public GameObject Player { get; private set; }

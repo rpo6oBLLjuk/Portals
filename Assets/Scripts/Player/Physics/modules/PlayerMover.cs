@@ -26,7 +26,7 @@ public class PlayerMover : MonoBehaviour, IPhysicsComponent
     private void SimpleMove()
     {
         Vector3 moveVector = PlayerPhysicsController.Body.forward * verticalInput + PlayerPhysicsController.Body.right * horizontalInput;
-        moveVector *= playerSpeed * Time.deltaTime;
+        moveVector *= playerSpeed;
 
         Velocity = moveVector;
     }

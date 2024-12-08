@@ -84,15 +84,19 @@ public class PortalWarpController : MonoBehaviour
         var inTransform = this.transform;
         var outTransform = secondPortal.Container.transform;
 
-        Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
-        relativePos = halfTurn * relativePos;
-        relativePos = outTransform.TransformPoint(relativePos);
+        //Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
+        //relativePos = halfTurn * relativePos;
+        //relativePos = outTransform.TransformPoint(relativePos);
+        //warpedObj.transform.position = relativePos;
+
+        Vector3 relativePos = inTransform.worldToLocalMatrix.MultiplyPoint3x4(warpedObj.transform.position);
+        relativePos.x *= -1;
+        relativePos.z *= -1;
+        relativePos = outTransform.localToWorldMatrix.MultiplyPoint3x4(relativePos);
         warpedObj.transform.position = relativePos;
 
-        Quaternion relativeRot = warpedObj.transform.rotation;
-        relativeRot = halfTurn * relativeRot;
-        Quaternion endRotation = relativeRot * outTransform.rotation * Quaternion.Inverse(inTransform.rotation); //Поле для отладки, не забыть удалить
-        warpedObj.transform.rotation = endRotation;
+        Quaternion relativeRot = outTransform.transform.rotation * Quaternion.Inverse(inTransform.rotation * Quaternion.Euler(0, 180, 0)); 
+        warpedObj.transform.rotation *= relativeRot;
 
         Vector3 relativeVel = Vector3.zero;
 
@@ -119,8 +123,6 @@ public class PortalWarpController : MonoBehaviour
         {
             playerRotationFix.FixRotation();
         }
-
-        Debug.Log($"EndPosition: {relativePos}, EndRotation: {endRotation}");
 
         if (breakBeforeWarp)
             Debug.Break();

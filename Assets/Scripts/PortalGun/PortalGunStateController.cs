@@ -26,7 +26,7 @@ public class PortalGunStateController : MonoBehaviour
         currentState = portalsState;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         PortalGunState newState = GetActiveState();
         if (currentState != newState)

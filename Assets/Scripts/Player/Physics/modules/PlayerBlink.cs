@@ -33,7 +33,7 @@ public class PlayerBlink : MonoBehaviour, IPhysicsComponent
             direction.y = 0f;
             direction = direction.normalized;
 
-            Velocity = distance / blinkDuration * direction * Time.deltaTime;
+            Velocity = distance / blinkDuration * direction;
         }
     }
 

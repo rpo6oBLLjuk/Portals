@@ -82,7 +82,7 @@ public class PlayerJatpack : MonoBehaviour, IPhysicsComponent
 
     private void Fly()
     {
-        PlayerPhysicsController.AddUpForce(GetUpForce() * Time.deltaTime);
+        PlayerPhysicsController.AddUpForce(GetUpForce());
 
         SpendEnergy();
     }

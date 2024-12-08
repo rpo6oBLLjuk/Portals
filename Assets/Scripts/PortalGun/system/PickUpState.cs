@@ -95,6 +95,9 @@ public class PickUpState : PortalGunState
         }
         if(pickedUpObj.TryGetComponent(out Collider collider))
         {
+            //При выключении коллизии "механизмы" ломаются
+            //Без выключения коллизии объект бесконечно перемещается между порталами
+
             //collider.enabled = isActive;
         }
     }

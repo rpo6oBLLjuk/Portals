@@ -110,7 +110,7 @@ public class PortalWarpController : MonoBehaviour
         {
             relativeVel = inTransform.InverseTransformDirection(entityPhysicsController.Velocity);
             relativeVel = halfTurn * relativeVel;
-            //entityPhysicsController.AddForce(outTransform.TransformDirection(relativeVel));
+            entityPhysicsController.ChangeForce(outTransform.TransformDirection(relativeVel));
 
             uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=green>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
         }

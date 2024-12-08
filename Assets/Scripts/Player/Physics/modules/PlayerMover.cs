@@ -1,12 +1,9 @@
 using CustomInspector;
 using UnityEngine;
-using Zenject;
 
 public class PlayerMover : MonoBehaviour, IPhysicsComponent
 {
-    [Inject] CameraService cameraService;
-
-    public PlayerPhysicsController EntityPhysicsController { get; set; }
+    public PlayerPhysicsController PlayerPhysicsController { get; set; }
     public Vector3 Velocity { get; set; }
 
     [SerializeField] private float playerSpeed = 2.0f;
@@ -28,7 +25,7 @@ public class PlayerMover : MonoBehaviour, IPhysicsComponent
 
     private void SimpleMove()
     {
-        Vector3 moveVector = cameraService.Forward * verticalInput + cameraService.Right * horizontalInput;
+        Vector3 moveVector = PlayerPhysicsController.Body.forward * verticalInput + PlayerPhysicsController.Body.right * horizontalInput;
         moveVector *= playerSpeed * Time.deltaTime;
 
         Velocity = moveVector;

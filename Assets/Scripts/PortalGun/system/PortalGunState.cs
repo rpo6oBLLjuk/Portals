@@ -13,7 +13,7 @@ public abstract class PortalGunState
 
     [SerializeField, Layer] protected int surfaceMask;
     [SerializeField] protected LayerMask raycastMask;
-    [SerializeField] protected float raycastDistance;
+    [SerializeField] public float raycastDistance;
 
     protected RaycastHit raycastHit;
     protected bool activeState = false;

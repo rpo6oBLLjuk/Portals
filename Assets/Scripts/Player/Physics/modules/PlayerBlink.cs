@@ -1,12 +1,9 @@
 using DG.Tweening;
 using UnityEngine;
-using Zenject;
 
 public class PlayerBlink : MonoBehaviour, IPhysicsComponent
 {
-    [Inject] CameraService cameraService;
-
-    public PlayerPhysicsController EntityPhysicsController { get; set; }
+    public PlayerPhysicsController PlayerPhysicsController { get; set; }
     public Vector3 Velocity { get; set; }
 
     public bool Reloaded => currentReloadTime <= 0;
@@ -17,7 +14,6 @@ public class PlayerBlink : MonoBehaviour, IPhysicsComponent
     public float reloadTime = 1f;
 
     private float currentReloadTime = 0f;
-    private Vector3 direction;
 
     public void CustomUpdate()
     {
@@ -32,13 +28,18 @@ public class PlayerBlink : MonoBehaviour, IPhysicsComponent
         }
 
         if (Blinking)
+        {
+            Vector3 direction = PlayerPhysicsController.Velocity;
+            direction.y = 0f;
+            direction = direction.normalized;
+
             Velocity = distance / blinkDuration * direction * Time.deltaTime;
+        }
     }
 
     private void StartBlink()
     {
         Blinking = true;
-        direction = cameraService.Forward;
 
         DOVirtual.DelayedCall(blinkDuration, () =>
         {

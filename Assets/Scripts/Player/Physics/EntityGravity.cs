@@ -5,7 +5,7 @@ using UnityEngine;
 [Serializable]
 public class EntityGravity : IPhysicsComponent
 {
-    public PlayerPhysicsController EntityPhysicsController { get; set; }
+    public PlayerPhysicsController PlayerPhysicsController { get; set; }
     public Vector3 Velocity
     {
         get => gravityValue * Time.deltaTime * Vector3.up;
@@ -22,7 +22,7 @@ public class EntityGravity : IPhysicsComponent
 
     private void ApplyGravity()
     {
-        if (EntityPhysicsController.IsGrounded && gravityValue < 0)
+        if (PlayerPhysicsController.IsGrounded && gravityValue < 0)
         {
             gravityValue = gravityScale * Time.deltaTime;
             return;

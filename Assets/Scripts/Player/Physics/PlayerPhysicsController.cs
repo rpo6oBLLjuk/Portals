@@ -5,27 +5,38 @@ using UnityEngine;
 public class PlayerPhysicsController : MonoBehaviour
 {
     [field: SerializeField] public CharacterController CharacterController { get; private set; }
-    [SerializeField] private EntityGravity entityGravity = new();
+    [field: SerializeField] public Transform Body { get; private set; }
 
-    public bool IsGrounded
-    {
-        get => isGrounded;
-    }
-    private bool isGrounded;
+    [SerializeField] private EntityGravity entityGravity = new();
 
     public float GravityScale
     {
         get => entityGravity.gravityScale;
     }
+    public bool IsGrounded
+    {
+        get => isGrounded;
+    }
 
     public Vector3 Velocity { get; private set; }
+    public Vector3 AccumulatedImpulse { get; private set; }
 
-    private Vector3 accumulatedImpulse = Vector3.zero;
+    private bool isGrounded;
+
     [SerializeField] private float impulseDamping = 0.9f;
-    [SerializeField] private float impulseGroundDamping = 0.25f;
+    [SerializeField] private float impulseGroundDamping = 0.025f;
 
     [SerializeField] private List<IPhysicsComponent> physicsHandlers;
 
+
+    public void ChangeForce(Vector3 force)
+    {
+        float upValue = force.y;
+        force.y = 0;
+
+        AccumulatedImpulse = force;
+        entityGravity.gravityValue = upValue;
+    }
 
     public void AddUpForce(float value)
     {
@@ -34,21 +45,22 @@ public class PlayerPhysicsController : MonoBehaviour
 
     public void AddForce(Vector3 force)
     {
-        entityGravity.gravityValue += force.y;
+        float upValue = force.y;
         force.y = 0;
-        accumulatedImpulse += force;
+
+        AccumulatedImpulse += force;
+        entityGravity.gravityValue += upValue;
     }
 
     void Start()
     {
         physicsHandlers = GetComponentsInChildren<IPhysicsComponent>().ToList();
-        physicsHandlers.Add(entityGravity);
 
         foreach (var handler in physicsHandlers)
         {
-            handler.EntityPhysicsController = this;
+            handler.PlayerPhysicsController = this;
         }
-        //entityGravity.EntityPhysicsController = this;
+        entityGravity.PlayerPhysicsController = this;
     }
 
     private void Update()
@@ -61,13 +73,19 @@ public class PlayerPhysicsController : MonoBehaviour
             handler.CustomUpdate();
             velocity += handler.Velocity;
         }
+        entityGravity.CustomUpdate();
 
-        velocity += accumulatedImpulse;
+        velocity += AccumulatedImpulse;
+        velocity += entityGravity.Velocity;
 
-        float dampingFactor = Mathf.Pow(isGrounded ? impulseGroundDamping : impulseDamping, Time.deltaTime);
-        accumulatedImpulse *= dampingFactor;
-
+        AccumulatedImpulseDamping();
         ApplyVelocity(velocity);
+    }
+
+    private void AccumulatedImpulseDamping()
+    {
+        float dampingFactor = Mathf.Pow(isGrounded ? impulseGroundDamping : impulseDamping, Time.deltaTime);
+        AccumulatedImpulse *= dampingFactor;
     }
 
     private void ApplyVelocity(Vector3 velocity)

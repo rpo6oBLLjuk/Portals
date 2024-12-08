@@ -49,12 +49,35 @@ public class PortalGunStateController : MonoBehaviour
         if (pickupState.PickedUp)
             return pickupState;
 
-        foreach(var state in states)
+        foreach (var state in states)
         {
             if (state.CheckRaycast())
                 return state;
         }
 
         return null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (currentState == null)
+        {
+            Gizmos.DrawRay(transform.position, transform.forward * 20);
+            return;
+        }
+
+        Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, currentState.raycastDistance);
+
+        if (hit.collider != null)
+        {
+            Gizmos.DrawLine(transform.position, hit.point);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(hit.point, 0.25f);
+        }
+        else
+        {
+            Gizmos.DrawRay(transform.position, transform.forward * currentState.raycastDistance);
+        }
     }
 }

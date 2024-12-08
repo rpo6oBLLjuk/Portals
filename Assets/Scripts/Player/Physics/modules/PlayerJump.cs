@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerJump : MonoBehaviour, IPhysicsComponent
 {
-    public PlayerPhysicsController EntityPhysicsController { get; set; }
+    public PlayerPhysicsController PlayerPhysicsController { get; set; }
     public Vector3 Velocity
     {
         get => Vector3.zero;
@@ -18,9 +18,9 @@ public class PlayerJump : MonoBehaviour, IPhysicsComponent
 
     private void Jump()
     {
-        if (Input.GetButtonDown("Jump") && EntityPhysicsController.IsGrounded)
+        if (Input.GetButtonDown("Jump") && PlayerPhysicsController.IsGrounded)
         {
-            EntityPhysicsController.AddUpForce(Mathf.Sqrt(jumpHeight * -1.0f * EntityPhysicsController.GravityScale));
+            PlayerPhysicsController.AddUpForce(Mathf.Sqrt(jumpHeight * -3.0f * PlayerPhysicsController.GravityScale));
             return;
         }
     }

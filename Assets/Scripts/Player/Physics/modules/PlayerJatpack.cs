@@ -1,12 +1,11 @@
 using CustomInspector;
 using System;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMover))]
 public class PlayerJatpack : MonoBehaviour, IPhysicsComponent
 {
-    public PlayerPhysicsController EntityPhysicsController { get; set; }
+    public PlayerPhysicsController PlayerPhysicsController { get; set; }
     public Vector3 Velocity { get; set; }
 
     public static event Action<float> EnergyChanged;
@@ -38,13 +37,13 @@ public class PlayerJatpack : MonoBehaviour, IPhysicsComponent
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (!EntityPhysicsController.IsGrounded)
+            if (!PlayerPhysicsController.IsGrounded)
             {
                 StartFly();
             }
         }
 
-        if (Input.GetKeyUp(KeyCode.Space) || EntityPhysicsController.IsGrounded)
+        if (Input.GetKeyUp(KeyCode.Space) || PlayerPhysicsController.IsGrounded)
         {
             if (isFly)
             {
@@ -83,7 +82,7 @@ public class PlayerJatpack : MonoBehaviour, IPhysicsComponent
 
     private void Fly()
     {
-        EntityPhysicsController.AddUpForce(GetUpForce() * Time.deltaTime);
+        PlayerPhysicsController.AddUpForce(GetUpForce() * Time.deltaTime);
 
         SpendEnergy();
     }
@@ -110,6 +109,6 @@ public class PlayerJatpack : MonoBehaviour, IPhysicsComponent
 
     private float GetUpForce()
     {
-        return (scaleByGravity) ? Mathf.Abs(EntityPhysicsController.GravityScale) * forceMultiplier : force;
+        return (scaleByGravity) ? Mathf.Abs(PlayerPhysicsController.GravityScale) * forceMultiplier : force;
     }
 }

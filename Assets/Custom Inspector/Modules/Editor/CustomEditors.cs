@@ -24,7 +24,6 @@ namespace CustomInspector.Editor
             DrawDefaultInspector();
         }
     }
-
     [CanEditMultipleObjects]
     [CustomEditor(typeof(ScriptableObject), editorForChildClasses: true, isFallback = true)]
     public class ScriptableObjectEditor : UnityEditor.Editor

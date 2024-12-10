@@ -9,6 +9,7 @@ public class PortalsGroup
     [field: SerializeField] public PortalData SecondPortalData { get; private set; }
 
     [field: SerializeField, FixedValues(0, 16, 24, 32)] private int RenderBufferDepth;
+    [field: SerializeField, Range(0.1f, 2)] private float renderQualityMultiplier = 1f;
 
     public void Start(CameraService cameraService)
     {
@@ -24,8 +25,13 @@ public class PortalsGroup
             return;
         }
 
-        RenderTexture renderTexture1 = new(cameraService.MainCamera.pixelWidth, cameraService.MainCamera.pixelHeight, RenderBufferDepth);
-        RenderTexture renderTexture2 = new(cameraService.MainCamera.pixelWidth, cameraService.MainCamera.pixelHeight, RenderBufferDepth);
+        int width = (int)(cameraService.MainCamera.pixelWidth * renderQualityMultiplier);
+        int height = (int)(cameraService.MainCamera.pixelHeight * renderQualityMultiplier);
+
+        Debug.Log($"Portal camera Width: {width}, Height: {height}");
+
+        RenderTexture renderTexture1 = new(width, height, RenderBufferDepth);
+        RenderTexture renderTexture2 = new(width, height, RenderBufferDepth);
 
         FirstPortalData.Start(renderTexture1, cameraService.MainCamera);
         SecondPortalData.Start(renderTexture2, cameraService.MainCamera);
@@ -62,18 +68,4 @@ public class PortalsGroup
         float portalThickness = (portalCamera.transform.localPosition).magnitude;
         portalCamera.nearClipPlane = portalThickness * 2;
     }
-
-    public Quaternion GetPortalRotationDifference(Transform fromPortal, PortalData toPortal)
-    {
-        Vector3 directionPortal1 = fromPortal.forward;
-        Vector3 directionPortal2 = toPortal.Container.forward;
-
-        Vector3 axis = Vector3.Cross(directionPortal1, directionPortal2);
-        float angle = Vector3.Angle(directionPortal1, directionPortal2);
-
-        Quaternion rotation = Quaternion.AngleAxis(angle, axis) * Quaternion.Euler(0, 180, 0) * (fromPortal.rotation * Quaternion.Inverse(toPortal.Container.rotation));
-        return rotation;
-    }
-
-
 }

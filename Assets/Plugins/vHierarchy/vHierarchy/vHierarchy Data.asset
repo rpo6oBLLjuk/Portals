@@ -17,6 +17,7 @@ MonoBehaviour:
     - 99c9720ab356a0642a771bea13969a05
     - 577a1dfa6a77b5545bab6c92fe22818c
     - fb7cd7e9206ca1340989ff55683b7e73
+    - 82a8ec07f13d23c429cb3be0cd20041a
     values:
     - goDatas_byGlobalId:
         keys:
@@ -93,3 +94,18 @@ MonoBehaviour:
           iconNameOrGuid: PreMatCube
         - colorIndex: 0
           iconNameOrGuid: PreMatCube
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-82a8ec07f13d23c429cb3be0cd20041a-1063551984-0
+        - globalObjectIdString: GlobalObjectId_V1-2-82a8ec07f13d23c429cb3be0cd20041a-1873936147-0
+        - globalObjectIdString: GlobalObjectId_V1-2-82a8ec07f13d23c429cb3be0cd20041a-1314397198-0
+        - globalObjectIdString: GlobalObjectId_V1-2-82a8ec07f13d23c429cb3be0cd20041a-1564680979-0
+        values:
+        - colorIndex: 6
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 7
+          iconNameOrGuid: Camera Icon
+        - colorIndex: 0
+          iconNameOrGuid: DirectionalLight Icon
+        - colorIndex: 1
+          iconNameOrGuid: Settings Icon

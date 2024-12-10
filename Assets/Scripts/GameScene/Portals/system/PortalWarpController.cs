@@ -18,7 +18,7 @@ public class PortalWarpController : MonoBehaviour
 
     [SerializeField, ReadOnly] private PortalData secondPortal;
 
-    private ListContainer<Collider> colliders = new ListContainer<Collider>();
+    [SerializeField]private ListContainer<Collider> colliders = new ();
 
 
     private void Start()
@@ -30,13 +30,14 @@ public class PortalWarpController : MonoBehaviour
     {
         colliders.Add(other);
 
-        Debug.Log($"Trigger Enter, GO: {other.gameObject.name}", other.gameObject);
+        if (collisionLog)
+            Debug.Log($"Trigger Enter, GO: {other.gameObject.name}", other.gameObject);
 
         if (other.gameObject.layer == warpedObjectsLayer)
         {
-            IngoneCollision(other, true);
-
             colliders.Remove(other);
+
+            IngoneCollision(other, true);
         }
     }
 
@@ -46,16 +47,23 @@ public class PortalWarpController : MonoBehaviour
         {
             if (CheckPlayerPosition(other))
                 Warp(other);
+
+            IngoneCollision(other, true);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        colliders.Remove(other);
+        if(collisionLog)
+            Debug.Log($"Trigger Exit, GO: {other.gameObject.name}", other.gameObject);
 
         if (other.gameObject.layer == warpedObjectsLayer)
         {
             IngoneCollision(other, false);
+        }
+        else
+        {
+            colliders.Remove(other);
         }
     }
 
@@ -79,15 +87,8 @@ public class PortalWarpController : MonoBehaviour
 
         audioService.Warp();
 
-        Quaternion halfTurn = portalService.Portals.GetPortalRotationDifference(transform, secondPortal);
-
         var inTransform = this.transform;
         var outTransform = secondPortal.Container.transform;
-
-        //Vector3 relativePos = inTransform.InverseTransformPoint(warpedObj.transform.position);
-        //relativePos = halfTurn * relativePos;
-        //relativePos = outTransform.TransformPoint(relativePos);
-        //warpedObj.transform.position = relativePos;
 
         Vector3 relativePos = inTransform.worldToLocalMatrix.MultiplyPoint3x4(warpedObj.transform.position);
         relativePos.x *= -1;
@@ -95,28 +96,42 @@ public class PortalWarpController : MonoBehaviour
         relativePos = outTransform.localToWorldMatrix.MultiplyPoint3x4(relativePos);
         warpedObj.transform.position = relativePos;
 
-        Quaternion relativeRot = outTransform.transform.rotation * Quaternion.Inverse(inTransform.rotation * Quaternion.Euler(0, 180, 0)); 
+        Quaternion relativeRot = outTransform.transform.rotation * Quaternion.Inverse(inTransform.rotation * Quaternion.Euler(0, 180, 0));
         warpedObj.transform.rotation *= relativeRot;
 
-        Vector3 relativeVel = Vector3.zero;
+        Vector3 relativeVel;
 
-        if (warpedObj.TryGetComponent(out Rigidbody rb))
+
+        if (warpedObj.TryGetComponent(out PlayerPhysicsController entityPhysicsController))
         {
-            relativeVel = inTransform.InverseTransformDirection(rb.velocity);
-            relativeVel = halfTurn * relativeVel;
-            rb.velocity = outTransform.TransformDirection(relativeVel);
+            Vector3 force = entityPhysicsController.Velocity - entityPhysicsController.MovementVelocity;
+
+            // Преобразование Vector3 в кватернион (чистый кватернион)
+            Quaternion forceQuaternion = new Quaternion(force.x, force.y, force.z, 0f);
+            // Вращение кватерниона
+            Quaternion rotatedForceQuaternion = relativeRot * forceQuaternion * Quaternion.Inverse(relativeRot);
+            // Преобразование обратно в Vector3
+            relativeVel = new Vector3(rotatedForceQuaternion.x, rotatedForceQuaternion.y, rotatedForceQuaternion.z);
+            // Применение силы
+            //entityPhysicsController.ChangeForce(relativeVel);
+
+            Debug.DrawRay(relativePos, relativeVel.normalized * 10);
+
+            uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=green>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
+        }
+        else if (warpedObj.TryGetComponent(out Rigidbody rb))
+        {
+            Vector3 force = rb.velocity;
+
+            Quaternion forceQuaternion = new Quaternion(force.x, force.y, force.z, 0f);
+            // Вращение кватерниона
+            Quaternion rotatedForceQuaternion = relativeRot * forceQuaternion * Quaternion.Inverse(relativeRot);
+            // Преобразование обратно в Vector3
+            relativeVel = new Vector3(rotatedForceQuaternion.x, rotatedForceQuaternion.y, rotatedForceQuaternion.z);
+            rb.velocity = relativeVel;
 
             Debug.DrawRay(relativePos, relativeVel.normalized * 10);
             uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=red>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
-
-        }
-        else if (warpedObj.TryGetComponent(out PlayerPhysicsController entityPhysicsController))
-        {
-            relativeVel = inTransform.InverseTransformDirection(entityPhysicsController.Velocity);
-            relativeVel = halfTurn * relativeVel;
-            entityPhysicsController.ChangeForce(outTransform.TransformDirection(relativeVel));
-
-            uiService.ConsoleWidget.AddLog($"Teleport end\nEntity: <color=green>{warpedObj.name}</color>\nPos: {relativePos}\nRot: {relativeRot}\nVel: {relativeVel}");
         }
 
         if (warpedObj.TryGetComponent(out PlayerRotationFix playerRotationFix))
@@ -138,6 +153,11 @@ public class PortalWarpController : MonoBehaviour
         {
             Physics.IgnoreCollision(warpedCollider, otherColliders, ignore);
             debugString += $"{otherColliders.name}, ";
+        }
+
+        if(warpedObj.TryGetComponent(out PlayerPhysicsController playerPhysicsController))
+        {
+            playerPhysicsController.IngoreCollision(colliders, ignore);
         }
 
         if (collisionLog)

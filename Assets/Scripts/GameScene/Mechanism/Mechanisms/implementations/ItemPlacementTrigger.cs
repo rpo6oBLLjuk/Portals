@@ -23,8 +23,6 @@ public class ItemPlacementTrigger : MechanismPrototype
     {
         colliders.Remove(other);
 
-        Debug.Log($"Collider Exit", other);
-
         if (colliders.Count == 0)
             MechanismDeactivate();
     }

@@ -77,6 +77,8 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-fb7cd7e9206ca1340989ff55683b7e73-1032998490-0
         - globalObjectIdString: GlobalObjectId_V1-2-fb7cd7e9206ca1340989ff55683b7e73-1046735945-0
         - globalObjectIdString: GlobalObjectId_V1-2-fb7cd7e9206ca1340989ff55683b7e73-1934809155-0
+        - globalObjectIdString: GlobalObjectId_V1-2-fb7cd7e9206ca1340989ff55683b7e73-699761478-0
+        - globalObjectIdString: GlobalObjectId_V1-2-fb7cd7e9206ca1340989ff55683b7e73-711115596-0
         values:
         - colorIndex: 1
           iconNameOrGuid: Settings Icon
@@ -94,6 +96,10 @@ MonoBehaviour:
           iconNameOrGuid: PreMatCube
         - colorIndex: 0
           iconNameOrGuid: PreMatCube
+        - colorIndex: 0
+          iconNameOrGuid: Light Icon
+        - colorIndex: 0
+          iconNameOrGuid: Light Icon
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-82a8ec07f13d23c429cb3be0cd20041a-1063551984-0

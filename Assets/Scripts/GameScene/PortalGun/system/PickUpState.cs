@@ -6,7 +6,10 @@ using Zenject;
 [Serializable]
 public class PickUpState : PortalGunState
 {
-    [Inject] UIService uiService;
+    [Inject] readonly EffectService effectService;
+    [Inject] readonly UIService uiService;
+
+    [SerializeField] private Transform LightningPoint;
 
     [field: SerializeField, ReadOnly] public bool PickedUp { get; private set; }
 
@@ -24,11 +27,13 @@ public class PickUpState : PortalGunState
     {
         base.ActivateState();
         uiService.CrosshairController.EnablePickupCrosshair();
+        effectService.EnablePortalGunLightning();
     }
     public override void DeactivateState()
     {
         base.DeactivateState();
         uiService.CrosshairController.DisableCrosshair();
+        effectService.DisablePortalGunLightning();
     }
 
     public override void StateUpdateLogic()
@@ -36,7 +41,10 @@ public class PickUpState : PortalGunState
         GetInput();
 
         if (PickedUp)
+        {
             MoveObj();
+            effectService.SetPortalGunLightningPoints(LightningPoint.position, pickedUpObj.transform.position);
+        }
     }
 
     private void GetInput()

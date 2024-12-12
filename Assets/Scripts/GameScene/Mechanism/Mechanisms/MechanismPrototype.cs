@@ -7,6 +7,7 @@ public abstract class MechanismPrototype : MonoBehaviour, IMechanism
     public event Action Activate;
     public event Action Deactivate;
 
+    [SerializeField] private bool logging = false;
     [SerializeField, ReadOnly] private bool isActive = false;
 
     protected void MechanismActivate()
@@ -17,7 +18,8 @@ public abstract class MechanismPrototype : MonoBehaviour, IMechanism
         Activate?.Invoke();
         isActive = true;
 
-        Debug.Log("Mechanism Activate", this);
+        if (logging)
+            Debug.Log("Mechanism Activate", this);
     }
     protected void MechanismDeactivate()
     {
@@ -27,6 +29,7 @@ public abstract class MechanismPrototype : MonoBehaviour, IMechanism
         Deactivate?.Invoke();
         isActive = false;
 
-        Debug.Log("Mechanism Deactivate", this);
+        if (logging)
+            Debug.Log("Mechanism Deactivate", this);
     }
 }

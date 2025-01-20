@@ -1,2 +1,4 @@
 # Portals
- Тестовый проект на Unity для портфолио.
+ A Unity test project for a portfolio.
+
+Current status of the project in the dev branch
